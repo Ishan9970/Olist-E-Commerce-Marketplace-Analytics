@@ -1,128 +1,123 @@
-# 📏 Metric Definitions — Phase 2 Foundation
+# Metric Definitions — Phase 2 Foundation
 
----
+## Delivery Time
 
-## 🚚 Delivery Time
+Definition
+The elapsed time between order shipment and final delivery to the customer.
 
-**Definition:**
-Time taken from shipment to customer delivery
-
-**Formula:**
+Formula
 delivery_date - carrier_date
 
-**Include:**
+Inclusion Criteria
 
-* Delivered orders only
-* Valid timestamps
+* Orders with status = delivered
+* Non-null shipment and delivery timestamps
 
-**Exclude:**
+Exclusion Criteria
 
-* delivery < shipment
-* NULL timestamps
+* Records where delivery_date < carrier_date
+* Missing or invalid timestamps
 
-**Reliability:** Medium
+Reliability
+Medium — dependent on logistics data accuracy and timestamp completeness
 
----
+## Processing Time
 
-## ⏱️ Processing Time
+Definition
+The time taken to process an order from placement to payment approval.
 
-**Definition:**
-Time taken from order placement to payment approval
-
-**Formula:**
+Formula
 approval_date - purchase_date
 
-**Include:**
+Inclusion Criteria
 
-* Orders with approval timestamps
+* Orders with valid approval timestamps
 
-**Exclude:**
+Exclusion Criteria
 
-* approval < purchase
+* Records where approval_date < purchase_date
+* Missing timestamps
 
-**Reliability:** High
+Reliability
+High — typically system-generated and consistent
 
----
+## Order Completion Rate
 
-## ✅ Order Completion Rate
+Definition
+The proportion of total orders that are successfully delivered.
 
-**Definition:**
-Percentage of orders successfully delivered
-
-**Formula:**
+Formula
 delivered_orders / total_orders
 
-**Include:**
+Inclusion Criteria
 
-* All valid orders
+* All valid orders with clear status classification
 
-**Exclude:**
+Exclusion Criteria
 
-* ambiguous status records
+* Orders with ambiguous or undefined statuses
 
-**Reliability:** Medium
+Reliability
+Medium — depends on accurate status labeling
 
----
+## Cancellation Rate
 
-## ❌ Cancellation Rate
+Definition
+The percentage of orders that are canceled relative to total orders.
 
-**Definition:**
-Percentage of canceled orders
+Categories
 
-**Types:**
+* Pre-delivery cancellations (before shipment)
+* Post-delivery cancellations (returns or refunds)
 
-* Pre-delivery cancellations
-* Post-delivery cancellations
+Important Consideration
 
-**Note:**
-Delivered + canceled must be treated separately
+* Delivered and canceled orders must be treated as mutually exclusive states in analysis
 
-**Reliability:** Low
+Reliability
+Low — cancellation logic may vary across systems and edge cases
 
----
+## Late Delivery Rate
 
-## ⏰ Late Delivery Rate
+Definition
+The proportion of orders delivered after the estimated delivery date.
 
-**Definition:**
-Orders delivered after estimated date
-
-**Formula:**
+Formula
 delivery_date > estimated_delivery_date
 
-**Include:**
+Inclusion Criteria
 
-* Delivered orders
+* Delivered orders with valid estimated and actual delivery timestamps
 
-**Exclude:**
+Exclusion Criteria
 
-* invalid timestamps
+* Missing or inconsistent timestamps
 
-**Reliability:** Medium
+Reliability
+Medium — sensitive to estimation accuracy and data quality
 
----
+## Average Order Value (AOV)
 
-## 💰 Average Order Value (AOV)
+Definition
+The average revenue generated per order.
 
-**Definition:**
-Average revenue per order
+Formula
+SUM(order_items.price + freight_value) / total_orders
 
-**Formula:**
-SUM(order_items.price + freight) / total_orders
+Data Source
 
-**Source:**
-order_items
+* order_items table
 
-**Note:**
-Must aggregate at order level first
+Important Note
 
-**Reliability:** High
+* Revenue must be aggregated at the order level before computing the average to avoid duplication bias
 
----
+Reliability
+High — provided joins and aggregations are correctly handled
 
-## ⚠️ Important Notes
+## General Data Quality Guidelines
 
-* All metrics require cleaned data
-* Invalid lifecycle records must be filtered
-* Metrics should not assume strict event ordering
-
----
+* All metrics must be computed on cleaned and validated datasets
+* Invalid lifecycle records (e.g., reversed timestamps, missing fields) must be excluded
+* Metrics should not assume strict chronological ordering across all events
+* Financial metrics should be validated through reconciliation checks
