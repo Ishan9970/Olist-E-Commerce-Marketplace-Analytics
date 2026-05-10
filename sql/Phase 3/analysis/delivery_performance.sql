@@ -25,22 +25,6 @@ WHERE fo.delivery_time IS NOT NULL
 GROUP BY dc.customer_state
 ORDER BY avg_delivery_time DESC;
 
--- ============================================
--- STEP 3: Seller-level delivery performance
--- ============================================
-
-SELECT
-    foi.seller_id,
-    COUNT(DISTINCT fo.order_id) AS total_orders,
-    AVG(fo.delivery_time) AS avg_delivery_time
-FROM fact_order_items foi
-JOIN fact_orders fo
-    ON foi.order_id = fo.order_id
-WHERE fo.delivery_time IS NOT NULL
-GROUP BY foi.seller_id
-HAVING COUNT(DISTINCT fo.order_id) >= 50
-ORDER BY avg_delivery_time DESC
-LIMIT 20;
 
 -- ============================================
 -- STEP 4: Late delivery rate
